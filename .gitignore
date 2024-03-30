@@ -1,6 +1,6 @@
 # created by virtualenv automatically
 venv
 **/migrations/
-
+db.sqlite3
 
 
