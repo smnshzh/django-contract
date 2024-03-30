@@ -16,9 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from django.contrib.auth import views as auth_views
+from django.urls import path, include
+from django.shortcuts import redirect
+
+from .views import custom_page_not_found  # Import the custom 404 handler
 
 urlpatterns = [
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/login/'), name='logout'),
     path('admin/', admin.site.urls),
     path('', include('base_data.urls')),
-    path("__reload__/", include("django_browser_reload.urls")),
+    path("", include("django_browser_reload.urls")),
 ]
+
+handler404 = 'base_data.views.custom_404_view'
+
+
+

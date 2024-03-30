@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-p(9*h82l(l+6%-r7)8=*ujay5dbp_*=44$&5u46#$sfdal60t5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -72,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'base_data.context_processors.current_user'
             ],
         },
     },
@@ -124,9 +125,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
+import os
 STATIC_URL = 'static/'
-
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -137,3 +138,6 @@ TAILWIND_APP_NAME = 'theme'
 # C:\Program Files\nodejs\npm
 
 NPM_BIN_PATH = "C:\\Program Files\\nodejs\\npm.cmd"
+
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'

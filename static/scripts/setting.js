@@ -1,43 +1,4 @@
-<!-- upload.html -->
-
-{% extends 'base.html' %}
-{% load tailwind_tags %}
-
-{% block title %}Upload Excel{% endblock %}
-
-{% block content %}
-   <div class="mt-8 p-4">
-    <div class="max-w-md mx-auto my-8">
-
-        <input type="file" id="excel_file" class="hidden" accept=".xlsx, .xls">
-        <label for="excel_file" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Upload Excel</label>
-
-        <!-- Loading spinner -->
-        <div id="loadingSpinner" class="hidden flex items-center justify-center absolute inset-0 bg-gray-900 bg-opacity-50">
-            <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
-        </div>
-
-        <div id="tableContainer" class="mt-4 overflow-auto max-h-80">
-            <h2 class="text-lg font-semibold mb-2">Uploaded Excel Data</h2>
-
-            <div id="paginationContainer" class="relative  shadow-md sm:rounded-lg"></div>
-            <div id="paginationButtons" class="mt-4">
-                <button id="prevButton" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">Prev</button>
-                <button id="nextButton" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">Next</button>
-            </div>
-        </div>
-
-        <button id="insertDataButton" class="mt-4 text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Insert Data</button>
-
-    </div>
-    <div class="col-span-2 max-w-md mx-auto my-8"></div>
-</div>
-
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.4/xlsx.full.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+       document.addEventListener('DOMContentLoaded', function() {
             var jsonData;
             var chunkSize = 5;
             var currentPage = 1;
@@ -140,36 +101,5 @@
                 }
             });
 
-            // Add event listener to insert data button
-            document.getElementById('insertDataButton').addEventListener('click', function() {
-                // Send selected data to the insert_data view
-                fetch("{% url 'insertdata' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": "{{ csrf_token }}"
-                    },
-                    body: JSON.stringify(jsonData) // Send the JSON data to the Django view
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert("Data inserted successfully!");
-                        // Optionally, you can handle the response here (e.g., show a success message)
-                        var fileInput = document.getElementById('excel_file');
-                        document.getElementById('paginationContainer').innerHTML = ''
-                        fileInput.value = ''; // Clear the file input
-                        jsonData = []
-                    } else {
-        // Handle the error response
-        response.json().then(errorMessage => {
-            alert(errorMessage.error); // Show the error message in an alert
-            });
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                });
-            });
+
         });
-    </script>
-{% endblock %}

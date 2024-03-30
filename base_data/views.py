@@ -2,6 +2,17 @@ from django.shortcuts import render ,redirect
 import json
 import pandas as pd
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
+def custom_404_view(request, exeptions):
+# snipped custom 404 view code
+    return redirect('dashboard')
+#
+# def custom_500_view(request, exeptions):
+# # snipped custom 500 view code
+#     return redirect('dashboard')
+
+@login_required
 def dashboard(request):
     # Assuming you have some data to pass to the template
     context = {
@@ -10,14 +21,14 @@ def dashboard(request):
         # Add more context data as needed
     }
     return render(request, 'home.html', context)
-
+@login_required
 def setting_view(request):
 
 
     return render(request, 'setting.html')
 
 
-
+@login_required
 def insert_data(request):
     if request.method == 'POST':
         # Decode the JSON data from request body
