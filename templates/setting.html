@@ -1,0 +1,165 @@
+<!-- upload.html -->
+
+{% extends 'base.html' %}
+{% load tailwind_tags %}
+
+{% block title %}Upload Excel{% endblock %}
+
+{% block content %}
+   <div class="mt-8 p-4">
+        <div class="max-w-md mx-auto my-8">
+
+            <input type="file" id="excel_file" class="hidden" accept=".xlsx, .xls">
+            <label for="excel_file" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Upload Excel</label>
+
+
+            <div id="tableContainer" class="hidden mt-4 overflow-auto h-96">
+                <h2 class="text-lg font-semibold mb-2">Uploaded Excel Data</h2>
+
+                <div id="paginationContainer" class="w-full"></div>
+                <div id="paginationButtons" class="mt-4">
+                    <button id="prevButton" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">Prev</button>
+                    <button id="nextButton" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">Next</button>
+                </div>
+            </div>
+
+            <button  id="insertDataButton" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" >Insert Data</button>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.4/xlsx.full.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var jsonData;
+            var chunkSize = 5;
+            var currentPage = 1;
+
+            // Add event listener to file input
+            document.getElementById('excel_file').addEventListener('change', function(event) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    var data = new Uint8Array(e.target.result);
+                    var workbook = XLSX.read(data, {type: 'array'});
+                    var sheetName = workbook.SheetNames[0];
+                    var sheet = workbook.Sheets[sheetName];
+                    jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1});
+
+                    // Show table container
+                    document.getElementById('tableContainer').classList.remove('hidden');
+
+                    renderPage(currentPage);
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+
+            function renderPage(pageNumber) {
+                var startIndex = (pageNumber - 1) * chunkSize;
+                var endIndex = startIndex + chunkSize;
+                var chunkData = jsonData.slice(startIndex, endIndex);
+
+                var table = document.createElement('table');
+                table.className = 'w-full border-collapse border border-gray-300';
+                var thead = document.createElement('thead');
+                var tbody = document.createElement('tbody');
+
+                // Generate table headers
+                var headerRow = document.createElement('tr');
+                for (var i = 0; i < jsonData[0].length; i++) {
+                    var th = document.createElement('th');
+                    th.textContent = jsonData[0][i];
+                    th.className = 'border border-gray-300 p-2';
+                    headerRow.appendChild(th);
+                }
+                thead.appendChild(headerRow);
+
+                // Generate table rows
+                for (var j = 1; j < chunkData.length; j++) {
+                    var row = document.createElement('tr');
+                    for (var k = 0; k < chunkData[j].length; k++) {
+                        var cell = document.createElement('td');
+                        cell.textContent = chunkData[j][k];
+                        cell.className = 'border border-gray-300 p-2';
+                        row.appendChild(cell);
+                    }
+                    tbody.appendChild(row);
+                }
+                table.appendChild(thead);
+                table.appendChild(tbody);
+
+                // Clear previous pagination
+                document.getElementById('paginationContainer').innerHTML = '';
+                // Append table to pagination container
+                document.getElementById('paginationContainer').appendChild(table);
+
+                // Update pagination buttons
+                updatePaginationButtons(pageNumber);
+            }
+
+            function updatePaginationButtons(currentPage) {
+                var prevButton = document.getElementById('prevButton');
+                var nextButton = document.getElementById('nextButton');
+
+                if (currentPage === 1) {
+                    prevButton.disabled = true;
+                } else {
+                    prevButton.disabled = false;
+                }
+
+                if (currentPage === Math.ceil(jsonData.length / chunkSize)) {
+                    nextButton.disabled = true;
+                } else {
+                    nextButton.disabled = false;
+                }
+            }
+
+            document.getElementById('prevButton').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            });
+
+            document.getElementById('nextButton').addEventListener('click', function() {
+                if (currentPage < Math.ceil(jsonData.length / chunkSize)) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            });
+
+            // Add event listener to insert data button
+            document.getElementById('insertDataButton').addEventListener('click', function() {
+                // Send selected data to the insert_data view
+                fetch("{% url 'insertdata' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify(jsonData) // Send the JSON data to the Django view
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Data inserted successfully!");
+                        // Optionally, you can handle the response here (e.g., show a success message)
+                        var fileInput = document.getElementById('excel_file');
+                        document.getElementById('tableContainer').classList.add('hidden');
+                        fileInput.value = ''; // Clear the file input
+                        jsonData = []
+                    } else {
+        // Handle the error response
+        response.json().then(errorMessage => {
+            alert(errorMessage.error); // Show the error message in an alert
+            });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            });
+        });
+    </script>
+{% endblock %}

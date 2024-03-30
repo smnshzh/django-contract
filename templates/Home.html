@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load tailwind_tags %}
+{% block title %}Home - My Website{% endblock %}
+{% block java %}
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+{% endblock %}
+{% block content %}
+<div class="mt-8 p-4">
+    <div class="p-4 sm:ml-64">
+        <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 grid grid-cols-3 gap-4">
+            <!-- Line Chart Container -->
+            <div id="line-chart" class="col-span-1"></div>
+            <!-- Bar Chart Container -->
+            <div id="bar-chart" class="col-span-1"></div>
+            <!-- Pie Chart Container -->
+            <div id="pie-chart" class="col-span-1"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Line Chart
+    const lineOptions = {
+        series: [{
+            name: 'Sales',
+            data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
+        }],
+        chart: {
+            type: 'line',
+            height: '300px',
+            toolbar: {
+                show: false
+            }
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+        }
+    };
+    var lineChart = new ApexCharts(document.querySelector("#line-chart"), lineOptions);
+    lineChart.render();
+
+    // Bar Chart
+    const barOptions = {
+        series: [{
+            name: 'Sales',
+            data: [30, 40, 35, 50, 49, 60, 70, 91, 125]
+        }],
+        chart: {
+            type: 'bar',
+            height: '300px',
+            toolbar: {
+                show: false
+            }
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+        }
+    };
+    var barChart = new ApexCharts(document.querySelector("#bar-chart"), barOptions);
+    barChart.render();
+
+    // Pie Chart
+    const pieOptions = {
+        series: [44, 55, 13, 43, 22],
+        labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+        chart: {
+            type: 'donut',
+            height: '300px',
+            toolbar: {
+                show: false
+            }
+        }
+    };
+    var pieChart = new ApexCharts(document.querySelector("#pie-chart"), pieOptions);
+    pieChart.render();
+</script>
+{% endblock %}
