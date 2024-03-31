@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import EmployeeDetails
 from datetime import datetime
+from .html import *
+
 def custom_404_view(request, exeptions):
 # snipped custom 404 view code
     return redirect('dashboard')
@@ -25,8 +27,12 @@ def dashboard(request):
 @login_required
 def setting_view(request):
     persons = EmployeeDetails.objects.filter(user_creator= request.user)
+    html_table = create_html_table(persons)
+    context = {"persons": persons,
+               "html_table":html_table
+               }
 
-    return render(request, 'setting.html')
+    return render(request, 'setting.html',context=context)
 
 
 
