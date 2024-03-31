@@ -24,7 +24,7 @@ def dashboard(request):
     return render(request, 'home.html', context)
 @login_required
 def setting_view(request):
-    persons = EmployeeDetails.objects.get(user_creator= request.user)
+    persons = EmployeeDetails.objects.filter(user_creator= request.user)
 
     return render(request, 'setting.html')
 
