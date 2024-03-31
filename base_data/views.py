@@ -3,7 +3,8 @@ import json
 import pandas as pd
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-
+from .models import EmployeeDetails
+from datetime import datetime
 def custom_404_view(request, exeptions):
 # snipped custom 404 view code
     return redirect('dashboard')
@@ -23,9 +24,10 @@ def dashboard(request):
     return render(request, 'home.html', context)
 @login_required
 def setting_view(request):
-
+    persons = EmployeeDetails.objects.get(user_creator= request.user)
 
     return render(request, 'setting.html')
+
 
 
 @login_required
@@ -64,8 +66,62 @@ def insert_data(request):
         # Assign user to DataFrame
         df['user'] = user_name
 
-        # Print DataFrame
-        print(df)
+        # Save data to the database
+        try:
+            for _, row in df.iterrows():
+                employee_details = EmployeeDetails.objects.create(
+                    marital_status=row['وضعیت تاهل'],
+                    cost_center=row['مرکز هزینه'],
+                    employee_id=int(float(row['شماره پرسنلی'])),
+                    insurance_type=row['نوع بیمه'],
+                    insurance_number=row['شماره بیمه'],
+                    employment_date=row['تاریخ استخدام'],
+                    date_of_birth=row['تاریخ تولد'],
+                    place_of_birth=row['محل تولد'],
+                    first_name=row['نام'],
+                    last_name=row['نام خانوادگی'],
+                    national_id=row['شماره شناسنامه'],
+                    father_name=row['نام پدر'],
+                    national_code=row['کد ملی'],
+                    postal_code=row['کد پستی'],
+                    telephone=row['تلفن'],
+                    mobile=row['تلفن همراه'],
+                    education_degree=row['مدرک تحصیلی'],
+                    field_of_study=row['رشته تحصیلی'],
+                    address=row['آدرس'],
+                    gender=row['جنسیت'],
+                    job_description=row['شرح شغل'],
+                    job_code=row['کد شغل'],
+                    contract_duration=int(float(row['مدت قرارداد(ماه)'])),
+                    monthly_base_salary=int(float(row['حقوق پایه ماهانه'])),
+                    daily_base_salary=int(float(row['حقوق پایه روزانه'])),
+                    hourly_base_salary=int(float(row['حقوق پایه هر ساعت'])),
+                    recruitment_bonus=int(float(row['حق جذب'])),
+                    housing_allowance=int(float(row['حق مسکن'])),
+                    child_allowance=int(float(row['حق اولاد'])),
+                    food_and_weather_allowance=int(float(row['بن و خواروبار'])),
+                    weather_disability=int(float(row['بدی آب و هوا'])),
+                    mission_allowance=int(float(row['حق ماموریت'])),
+                    bonus=int(float(row['پاداش'])),
+                    insured=row['مشمول بیمه'],
+                    worker_share=row['سهم کارگر'],
+                    employer_share=row['سهم کارفرما'],
+                    two_thirds_exemption=int(float(row['معافیت دو هفتم'])),
+                    seniority=int(float(row['سنوات'])),
+                    supervisor_allowance=int(float(row['حق سرپرستی'])),
+                    supplementary_insurance=int(float(row['بیمه تکمیلی'])),
+                    unemployment_insurance=row['بیمه بیکاری'],
+                    termination_date=row['تاریخ ترک کار'],
+                    child_number=int(float(row['تعداد فرزند'])),
+                    cstart=row['تاریخ شروع قرارداد'],
+                    cend=row['تاریخ پایان قرارداد'],
+                    user_creator=user_name
+                )
+
+                employee_details.save()
+        except Exception as e:
+
+                return JsonResponse({'error': str(e)}, status=400)
 
         return redirect('setting')
 
